@@ -1,0 +1,1051 @@
+<!doctype html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Sirkana - Pencairan Dana Admin</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#22C55E',
+            'primary-dark': '#16A34A',
+            secondary: '#FACC15',
+            'secondary-dark': '#EAB308',
+            accent: '#065F46',
+            surface: '#F0FDF4',
+            'surface-alt': '#FEFCE8'
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; padding: 0; }
+    .app-container { height: 100%; overflow: auto; }
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .slide-up { animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
+    .btn-press { transition: transform 0.1s ease; }
+    .btn-press:active { transform: scale(0.97); }
+    .gradient-primary { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
+    .gradient-secondary { background: linear-gradient(135deg, #FACC15 0%, #EAB308 100%); }
+    .scroll-hidden::-webkit-scrollbar { display: none; }
+    .scroll-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+    .bank-tab-active {
+      background-color: #22C55E;
+      color: white;
+      border-color: #22C55E;
+    }
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="h-full bg-gray-50 font-sans">
+  <div id="app" class="app-container scroll-hidden">
+    
+    <!-- Header -->
+    <header class="gradient-secondary p-6 pb-8 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+      <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+      
+      <div class="relative z-10">
+        <!-- Top Bar dengan Back Button -->
+        <div class="flex items-center gap-4 mb-4">
+          <button onclick="goBack()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 class="text-white font-bold text-xl">Pencairan Dana</h1>
+        </div>
+        
+        <!-- Info Bank & Tanggal -->
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-yellow-100 text-sm">Bank Sampah Sejahtera</p>
+            <p class="text-white text-2xl font-bold">Rp 2.580.000</p>
+            <p class="text-yellow-100 text-xs mt-1">Total dana yang harus dicairkan</p>
+          </div>
+          <div class="bg-white/20 rounded-xl px-4 py-2 text-center">
+            <p class="text-white text-xs">Tanggal Pencairan</p>
+            <p class="text-white font-bold">2 Maret 2026</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Alert Info -->
+    <div class="px-4 -mt-4 relative z-20">
+      <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-start gap-3">
+        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-gray-800">Periode Pencairan: 2 Maret 2026</p>
+          <p class="text-xs text-gray-600 mt-1">Ada 12 permintaan pencairan dari 8 pengguna. Klik "Cairkan" untuk memproses ke rekening tujuan.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="px-4 mt-6">
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-white rounded-xl p-3 shadow-sm">
+          <p class="text-xs text-gray-500 mb-1">Total Pengajuan</p>
+          <p class="text-xl font-bold text-gray-800">12</p>
+          <p class="text-xs text-green-600">+3 dari kemarin</p>
+        </div>
+        <div class="bg-white rounded-xl p-3 shadow-sm">
+          <p class="text-xs text-gray-500 mb-1">Pengguna</p>
+          <p class="text-xl font-bold text-primary">8</p>
+          <p class="text-xs text-gray-500">orang</p>
+        </div>
+        <div class="bg-white rounded-xl p-3 shadow-sm">
+          <p class="text-xs text-gray-500 mb-1">Belum Dicairkan</p>
+          <p class="text-xl font-bold text-yellow-600">12</p>
+          <p class="text-xs text-gray-500">permintaan</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bank Category Tabs -->
+    <div class="px-4 mt-6">
+      <div class="bg-white rounded-2xl p-2 shadow-sm flex gap-1 overflow-x-auto scroll-hidden">
+        <button onclick="filterBank('all')" id="bankAll" class="bank-tab-active px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all">
+          Semua Bank
+        </button>
+        <button onclick="filterBank('bca')" id="bankBca" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all">
+          BCA
+        </button>
+        <button onclick="filterBank('bni')" id="bankBni" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all">
+          BNI
+        </button>
+        <button onclick="filterBank('bri')" id="bankBri" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all">
+          BRI
+        </button>
+        <button onclick="filterBank('mandiri')" id="bankMandiri" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all">
+          Mandiri
+        </button>
+        <button onclick="filterBank('dana')" id="bankDana" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all">
+          DANA
+        </button>
+        <button onclick="filterBank('gopay')" id="bankGopay" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all">
+          GoPay
+        </button>
+        <button onclick="filterBank('ovo')" id="bankOvo" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all">
+          OVO
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="px-4 mt-4">
+      <div class="flex gap-2">
+        <div class="flex-1 relative">
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" placeholder="Cari nama atau rekening..." class="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+        </div>
+        <button class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors">
+          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="px-4 mt-4">
+      <div class="bg-white rounded-2xl p-3 shadow-sm flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <input type="checkbox" id="selectAll" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+          <label for="selectAll" class="text-sm font-medium text-gray-700">Pilih Semua</label>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="bulkApprove()" class="px-4 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+            Setujui
+          </button>
+          <button onclick="bulkReject()" class="px-4 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+            Tolak
+          </button>
+          <button onclick="bulkProcess()" class="px-4 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+            Cairkan Terpilih
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary by Bank -->
+    <div class="px-4 mt-6">
+      <h3 class="font-bold text-gray-800 mb-3">Ringkasan per Bank</h3>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="bg-white rounded-xl p-2 text-center shadow-sm">
+          <p class="text-xs text-gray-500">BCA</p>
+          <p class="font-bold text-gray-800">3</p>
+          <p class="text-xs text-primary">Rp 450k</p>
+        </div>
+        <div class="bg-white rounded-xl p-2 text-center shadow-sm">
+          <p class="text-xs text-gray-500">BNI</p>
+          <p class="font-bold text-gray-800">2</p>
+          <p class="text-xs text-primary">Rp 375k</p>
+        </div>
+        <div class="bg-white rounded-xl p-2 text-center shadow-sm">
+          <p class="text-xs text-gray-500">BRI</p>
+          <p class="font-bold text-gray-800">2</p>
+          <p class="text-xs text-primary">Rp 520k</p>
+        </div>
+        <div class="bg-white rounded-xl p-2 text-center shadow-sm">
+          <p class="text-xs text-gray-500">Mandiri</p>
+          <p class="font-bold text-gray-800">1</p>
+          <p class="text-xs text-primary">Rp 200k</p>
+        </div>
+        <div class="bg-white rounded-xl p-2 text-center shadow-sm">
+          <p class="text-xs text-gray-500">DANA</p>
+          <p class="font-bold text-gray-800">2</p>
+          <p class="text-xs text-primary">Rp 225k</p>
+        </div>
+        <div class="bg-white rounded-xl p-2 text-center shadow-sm">
+          <p class="text-xs text-gray-500">GoPay</p>
+          <p class="font-bold text-gray-800">1</p>
+          <p class="text-xs text-primary">Rp 310k</p>
+        </div>
+        <div class="bg-white rounded-xl p-2 text-center shadow-sm">
+          <p class="text-xs text-gray-500">OVO</p>
+          <p class="font-bold text-gray-800">1</p>
+          <p class="text-xs text-primary">Rp 500k</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Withdrawal Requests List -->
+    <div class="px-4 mt-6 mb-24">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-gray-800 text-lg">Daftar Pengajuan Pencairan</h3>
+        <p class="text-xs text-gray-500">Total: Rp 2.580.000</p>
+      </div>
+
+      <!-- Group: BCA -->
+      <div id="groupBca" class="bank-group" data-bank="bca">
+        <div class="flex items-center gap-2 mb-3 mt-2">
+          <div class="w-1 h-6 bg-blue-600 rounded-full"></div>
+          <p class="font-semibold text-gray-800">BCA</p>
+          <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">3 permintaan</span>
+          <span class="text-xs text-gray-500 ml-auto">Total: Rp 450.000</span>
+        </div>
+
+        <!-- Item 1 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-blue-500">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Tukiyem</h4>
+                  <p class="text-xs text-gray-500 mt-1">BCA • 1234567890</p>
+                  <p class="text-xs text-gray-400">a.n. Tukiyem</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 150.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-001</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-001')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-001')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-001')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-blue-500">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Otong Surotong Pararotong</h4>
+                  <p class="text-xs text-gray-500 mt-1">BCA • 0987654321</p>
+                  <p class="text-xs text-gray-400">a.n. Otong Surotong Pararotong</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 200.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-002</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-002')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-002')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-002')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-blue-500">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Ucup Surucup</h4>
+                  <p class="text-xs text-gray-500 mt-1">BCA • 5551234567</p>
+                  <p class="text-xs text-gray-400">a.n. Ucup Surucup</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 100.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-003</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-003')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-003')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-003')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group: BNI -->
+      <div id="groupBni" class="bank-group mt-6" data-bank="bni">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+          <p class="font-semibold text-gray-800">BNI</p>
+          <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">2 permintaan</span>
+          <span class="text-xs text-gray-500 ml-auto">Total: Rp 375.000</span>
+        </div>
+
+        <!-- Item 4 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-red-500">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Dadang Suradang</h4>
+                  <p class="text-xs text-gray-500 mt-1">BNI • 8889990001</p>
+                  <p class="text-xs text-gray-400">a.n. Dadang Suradang</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 175.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-004</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-004')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-004')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-004')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 5 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-red-500">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Desi Dewi</h4>
+                  <p class="text-xs text-gray-500 mt-1">BNI • 8889990002</p>
+                  <p class="text-xs text-gray-400">a.n. Desi Dewi</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 200.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-005</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-005')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-005')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-005')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group: BRI -->
+      <div id="groupBri" class="bank-group mt-6" data-bank="bri">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-1 h-6 bg-blue-800 rounded-full"></div>
+          <p class="font-semibold text-gray-800">BRI</p>
+          <span class="text-xs bg-blue-800 text-white px-2 py-0.5 rounded-full">2 permintaan</span>
+          <span class="text-xs text-gray-500 ml-auto">Total: Rp 520.000</span>
+        </div>
+
+        <!-- Item 6 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-blue-800">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Asep Suracep</h4>
+                  <p class="text-xs text-gray-500 mt-1">BRI • 1112223334</p>
+                  <p class="text-xs text-gray-400">a.n. Asep Suracep</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 250.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-006</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-006')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-006')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-006')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 7 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-blue-800">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Budi Subidun</h4>
+                  <p class="text-xs text-gray-500 mt-1">BRI • 1112223335</p>
+                  <p class="text-xs text-gray-400">a.n. Budi Subidun</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 270.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-007</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-007')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-007')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-007')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group: Mandiri -->
+      <div id="groupMandiri" class="bank-group mt-6" data-bank="mandiri">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-1 h-6 bg-yellow-600 rounded-full"></div>
+          <p class="font-semibold text-gray-800">Mandiri</p>
+          <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">1 permintaan</span>
+          <span class="text-xs text-gray-500 ml-auto">Total: Rp 200.000</span>
+        </div>
+
+        <!-- Item 8 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-yellow-600">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Megawati Soekarno</h4>
+                  <p class="text-xs text-gray-500 mt-1">Mandiri • 4445556667</p>
+                  <p class="text-xs text-gray-400">a.n. Megawati Soekarno</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 200.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-008</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-008')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-008')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-008')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group: DANA -->
+      <div id="groupDana" class="bank-group mt-6" data-bank="dana">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-1 h-6 bg-blue-400 rounded-full"></div>
+          <p class="font-semibold text-gray-800">DANA</p>
+          <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">2 permintaan</span>
+          <span class="text-xs text-gray-500 ml-auto">Total: Rp 225.000</span>
+        </div>
+
+        <!-- Item 9 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-blue-400">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Anies Baswedan</h4>
+                  <p class="text-xs text-gray-500 mt-1">DANA • 081234567890</p>
+                  <p class="text-xs text-gray-400">a.n. Anies Baswedan</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 125.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-009</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-009')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-009')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-009')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 10 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-blue-400">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Ganjar Pranowo</h4>
+                  <p class="text-xs text-gray-500 mt-1">DANA • 081298765432</p>
+                  <p class="text-xs text-gray-400">a.n. Ganjar Pranowo</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 100.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 02 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-010</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-010')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-010')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-010')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group: GoPay -->
+      <div id="groupGopay" class="bank-group mt-6" data-bank="gopay">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-1 h-6 bg-blue-500 rounded-full"></div>
+          <p class="font-semibold text-gray-800">GoPay</p>
+          <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">1 permintaan</span>
+          <span class="text-xs text-gray-500 ml-auto">Total: Rp 310.000</span>
+        </div>
+
+        <!-- Item 11 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-blue-500">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Ridwan Kamil</h4>
+                  <p class="text-xs text-gray-500 mt-1">GoPay • 082112345678</p>
+                  <p class="text-xs text-gray-400">a.n. Ridwan Kamil</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 310.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-011</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-011')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-011')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-011')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group: OVO -->
+      <div id="groupOvo" class="bank-group mt-6" data-bank="ovo">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-1 h-6 bg-purple-600 rounded-full"></div>
+          <p class="font-semibold text-gray-800">OVO</p>
+          <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">1 permintaan</span>
+          <span class="text-xs text-gray-500 ml-auto">Total: Rp 500.000</span>
+        </div>
+
+        <!-- Item 12 -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-3 border-l-4 border-purple-600">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h4 class="font-semibold text-gray-800">Khofifah Indar</h4>
+                  <p class="text-xs text-gray-500 mt-1">OVO • 085612345678</p>
+                  <p class="text-xs text-gray-400">a.n. Khofifah Indar</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-primary text-lg">Rp 500.000</p>
+                  <span class="status-badge bg-yellow-100 text-yellow-700">Menunggu</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-3 text-xs">
+                <span class="text-gray-400">Pengajuan: 01 Mar 2026</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-400">ID: WDR-012</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button onclick="approveWithdrawal('WDR-012')" class="flex-1 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-semibold hover:bg-green-200 transition-colors">
+                  Setujui
+                </button>
+                <button onclick="rejectWithdrawal('WDR-012')" class="flex-1 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors">
+                  Tolak
+                </button>
+                <button onclick="processPayment('WDR-012')" class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">
+                  Cairkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Data Message (hidden by default) -->
+      <div id="noDataMessage" class="hidden text-center py-12">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          </svg>
+        </div>
+        <p class="text-gray-500 font-medium">Tidak ada pengajuan untuk bank ini</p>
+        <p class="text-sm text-gray-400 mt-1">Semua permintaan sudah diproses</p>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation - Admin (Sama seperti di dashboard) -->
+    <nav id="adminNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-2">
+      <div class="flex items-center justify-around max-w-lg mx-auto">
+        <button onclick="goToDashboard()" class="flex flex-col items-center gap-1 p-2 text-gray-400">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+          </svg>
+          <span class="text-xs font-medium">Beranda</span>
+        </button>
+        <button onclick="goToData()" class="flex flex-col items-center gap-1 p-2 text-gray-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <span class="text-xs font-medium">Data</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 p-2 text-secondary-dark">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span class="text-xs font-medium">Pencairan</span>
+        </button>
+        <button onclick="goToIndustry()" class="flex flex-col items-center gap-1 p-2 text-gray-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+          </svg>
+          <span class="text-xs font-medium">Industri</span>
+        </button>
+        <button onclick="goToSettings()" class="flex flex-col items-center gap-1 p-2 text-gray-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span class="text-xs font-medium">Pengaturan</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-3xl w-full max-w-sm p-6 text-center slide-up">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Pencairan Berhasil!</h3>
+        <p class="text-gray-600 text-sm mb-6" id="successMessage">Dana telah ditransfer ke rekening tujuan</p>
+        <button onclick="closeSuccessModal()" class="w-full gradient-primary text-white py-3 rounded-xl font-semibold btn-press">
+          Tutup
+        </button>
+      </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-3xl w-full max-w-sm p-6 slide-up">
+        <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Konfirmasi Pencairan</h3>
+        <p class="text-gray-600 text-sm mb-6" id="confirmMessage">Yakin ingin mencairkan dana ini?</p>
+        <div class="flex gap-3">
+          <button onclick="closeConfirmModal()" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold btn-press">
+            Batal
+          </button>
+          <button onclick="executePayment()" class="flex-1 gradient-primary text-white py-3 rounded-xl font-semibold btn-press">
+            Ya, Cairkan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-xl shadow-xl z-50 hidden transform transition-all duration-300">
+      <div class="flex items-center gap-3">
+        <svg id="toastIcon" class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="toastMessage">Berhasil!</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentWithdrawalId = null;
+    let selectedBanks = [];
+
+    // Filter by bank
+    function filterBank(bank) {
+      // Reset all bank buttons
+      document.getElementById('bankAll').className = 'px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all';
+      document.getElementById('bankBca').className = 'px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all';
+      document.getElementById('bankBni').className = 'px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all';
+      document.getElementById('bankBri').className = 'px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all';
+      document.getElementById('bankMandiri').className = 'px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all';
+      document.getElementById('bankDana').className = 'px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all';
+      document.getElementById('bankGopay').className = 'px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all';
+      document.getElementById('bankOvo').className = 'px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 whitespace-nowrap transition-all';
+      
+      if (bank === 'all') {
+        document.getElementById('bankAll').className = 'bank-tab-active px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all';
+        // Show all groups
+        document.querySelectorAll('.bank-group').forEach(group => {
+          group.style.display = 'block';
+        });
+        document.getElementById('noDataMessage').classList.add('hidden');
+      } else {
+        // Activate clicked button
+        document.getElementById('bank' + bank.charAt(0).toUpperCase() + bank.slice(1)).className = 'bank-tab-active px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all';
+        
+        // Hide all groups
+        document.querySelectorAll('.bank-group').forEach(group => {
+          group.style.display = 'none';
+        });
+        
+        // Show selected group
+        const selectedGroup = document.getElementById('group' + bank.charAt(0).toUpperCase() + bank.slice(1));
+        if (selectedGroup) {
+          selectedGroup.style.display = 'block';
+          document.getElementById('noDataMessage').classList.add('hidden');
+        } else {
+          document.getElementById('noDataMessage').classList.remove('hidden');
+        }
+      }
+    }
+
+    // Approve withdrawal
+    function approveWithdrawal(id) {
+      showToast('Pengajuan ' + id + ' telah disetujui', 'success');
+      // In real app, update status in database
+    }
+
+    // Reject withdrawal
+    function rejectWithdrawal(id) {
+      showToast('Pengajuan ' + id + ' ditolak', 'error');
+    }
+
+    // Process payment (show confirm modal)
+    function processPayment(id) {
+      currentWithdrawalId = id;
+      document.getElementById('confirmMessage').innerText = 'Yakin ingin mencairkan dana untuk pengajuan ' + id + '?';
+      document.getElementById('confirmModal').classList.remove('hidden');
+      document.getElementById('confirmModal').classList.add('flex');
+    }
+
+    // Execute payment after confirmation
+    function executePayment() {
+      closeConfirmModal();
+      document.getElementById('successMessage').innerText = 'Dana untuk ' + currentWithdrawalId + ' telah ditransfer ke rekening tujuan';
+      document.getElementById('successModal').classList.remove('hidden');
+      document.getElementById('successModal').classList.add('flex');
+      
+      // Update button status in real app
+      showToast('Pencairan berhasil diproses', 'success');
+    }
+
+    // Bulk actions
+    function bulkApprove() {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        showToast('Pilih minimal satu pengajuan', 'error');
+        return;
+      }
+      showToast(checkboxes.length + ' pengajuan telah disetujui', 'success');
+    }
+
+    function bulkReject() {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        showToast('Pilih minimal satu pengajuan', 'error');
+        return;
+      }
+      showToast(checkboxes.length + ' pengajuan ditolak', 'error');
+    }
+
+    function bulkProcess() {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        showToast('Pilih minimal satu pengajuan', 'error');
+        return;
+      }
+      showToast('Memproses ' + checkboxes.length + ' pencairan', 'success');
+    }
+
+    // Select all checkbox
+    document.getElementById('selectAll').addEventListener('change', function(e) {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+      });
+    });
+
+    // Close modals
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.add('hidden');
+      document.getElementById('successModal').classList.remove('flex');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.add('hidden');
+      document.getElementById('confirmModal').classList.remove('flex');
+    }
+
+    // Navigation
+    function goBack() {
+      window.location.href = 'admin-dashboard.html';
+    }
+
+    function goToDashboard() {
+      window.location.href = 'admin-dashboard.html';
+    }
+
+    function goToData() {
+      window.location.href = 'admin-waste-list.html';
+    }
+
+    function goToIndustry() {
+      window.location.href = 'admin-industry.html';
+    }
+
+    function goToSettings() {
+      showToast('Fitur pengaturan dalam pengembangan');
+    }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+      
+      toastMessage.textContent = message;
+      
+      if (type === 'error') {
+        toastIcon.classList.remove('text-green-400');
+        toastIcon.classList.add('text-red-400');
+        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+      } else {
+        toastIcon.classList.remove('text-red-400');
+        toastIcon.classList.add('text-green-400');
+        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+      }
+      
+      toast.classList.remove('hidden');
+      
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2000);
+    }
+
+    // Close modals on backdrop click
+    document.getElementById('successModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeSuccessModal();
+      }
+    });
+
+    document.getElementById('confirmModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeConfirmModal();
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Pencairan page loaded - Tanggal 2 Maret 2026');
+    });
+  </script>
+</body>
+</html>

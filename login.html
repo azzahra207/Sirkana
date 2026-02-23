@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Sirkana - Masuk & Daftar</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#22C55E',
+            'primary-dark': '#16A34A',
+            secondary: '#FACC15',
+            'secondary-dark': '#EAB308',
+            accent: '#065F46',
+            surface: '#F0FDF4',
+            'surface-alt': '#FEFCE8'
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body { 
+      height: 100%; 
+      margin: 0; 
+      padding: 0; 
+    }
+    .app-container { 
+      height: 100%; 
+      overflow-y: auto; 
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    .fade-in { 
+      animation: fadeIn 0.5s ease-out; 
+    }
+    @keyframes fadeIn { 
+      from { opacity: 0; transform: translateY(20px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    .slide-up { 
+      animation: slideUp 0.4s ease-out; 
+    }
+    @keyframes slideUp { 
+      from { opacity: 0; transform: translateY(50px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    .btn-press { 
+      transition: all 0.15s ease; 
+    }
+    .btn-press:active { 
+      transform: scale(0.97); 
+      opacity: 0.9;
+    }
+    .gradient-primary { 
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); 
+    }
+    .input-field {
+      transition: all 0.3s ease;
+    }
+    .input-field:focus {
+      border-color: #22C55E;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    .scroll-hidden::-webkit-scrollbar { 
+      display: none; 
+    }
+    .scroll-hidden { 
+      -ms-overflow-style: none; 
+      scrollbar-width: none; 
+    }
+    .tab-active {
+      border-bottom: 3px solid #22C55E;
+      color: #22C55E;
+      font-weight: 600;
+    }
+    .panahKiriAtas{
+      color:#fff;
+    }
+    .panahKiriAtas:hover{
+      color:rgb(13, 85, 13) !important;
+    }
+  </style>
+</head>
+<body class="h-full font-sans bg-gray-50">
+  <div id="app" class="app-container scroll-hidden">
+    
+    <!-- Header dengan back button -->
+    <div class="bg-green-700 px-4 py-3 flex items-center gap-3 shadow-sm sticky top-0 z-10">
+      <button onclick="goBack()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
+        <svg class="w-6 h-6 panahKiriAtas" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <h1 class="text-xl text-white">Sirkana</h1>
+    </div>
+
+    <!-- Main Content -->
+    <div class="p-6">
+      <!-- Logo Section -->
+      <div class="text-center mb-8 fade-in">
+        <div class="w-20 h-20 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <img src="logohijau-removebg-preview.png" alt="">
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">Selamat Datang</h2>
+        <p class="text-gray-500">Kelola sampah, raih berkah</p>
+      </div>
+
+      <!-- Tab Login / Register -->
+      <div class="flex bg-white p-1 rounded-2xl shadow-sm mb-6">
+        <button onclick="switchTab('login')" id="tabLogin" class="flex-1 py-3 text-center font-semibold rounded-xl transition-all tab-active">
+          Masuk
+        </button>
+        <button onclick="switchTab('register')" id="tabRegister" class="flex-1 py-3 text-center font-semibold rounded-xl transition-all text-gray-500">
+          Daftar
+        </button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginForm" class="space-y-5 fade-in">
+        <!-- User Type Selection -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm">
+          <p class="text-sm font-medium text-gray-700 mb-3">Masuk sebagai</p>
+          <div class="flex gap-2">
+            <button onclick="setUserType('user')" id="userTypeBtn" class="flex-1 py-3 px-3 rounded-xl border-2 border-primary bg-surface text-primary font-semibold flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Pengguna
+            </button>
+            <button onclick="setUserType('admin')" id="adminTypeBtn" class="flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              Admin
+            </button>
+            <button onclick="setUserType('industry')" id="industryTypeBtn" class="flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+              </svg>
+              Industri
+            </button>
+          </div>
+        </div>
+
+        <!-- Email Input -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <input type="email" id="loginEmail" placeholder="contoh@email.com" 
+                   class="input-field w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Kata Sandi</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <input type="password" id="loginPassword" placeholder="••••••••" 
+                   class="input-field w-full pl-12 pr-12 py-3 bg-white rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+            <button type="button" onclick="togglePassword('loginPassword')" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember & Forgot -->
+        <div class="flex items-center justify-between">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
+            <span class="text-sm text-gray-600">Ingat saya</span>
+          </label>
+          <a href="#" class="text-sm text-primary font-semibold hover:underline">Lupa password?</a>
+        </div>
+
+        <!-- Login Button -->
+        <button onclick="handleLogin()" class="w-full gradient-primary text-white py-3 rounded-xl font-semibold btn-press flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2" />
+          </svg>
+          Masuk
+        </button>
+
+        <p class="text-center text-sm text-gray-500">
+          Belum punya akun? 
+          <button onclick="switchTab('register')" class="text-primary font-semibold">Daftar di sini</button>
+        </p>
+
+        <!-- Demo Accounts -->
+        <!-- <div class="bg-surface rounded-2xl p-4">
+          <p class="text-xs text-gray-500 text-center mb-3">🔑 Akun Demo (langsung klik)</p>
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            <button onclick="fillDemo('user')" class="p-2 bg-white rounded-xl border border-gray-200 hover:border-primary">
+              <span class="font-semibold text-gray-800">Pengguna</span>
+              <p class="text-gray-500">user@demo.com</p>
+            </button>
+            <button onclick="fillDemo('admin')" class="p-2 bg-white rounded-xl border border-gray-200 hover:border-primary">
+              <span class="font-semibold text-gray-800">Admin</span>
+              <p class="text-gray-500">admin@demo.com</p>
+            </button>
+            <button onclick="fillDemo('industry')" class="p-2 bg-white rounded-xl border border-gray-200 hover:border-primary">
+              <span class="font-semibold text-gray-800">Industri</span>
+              <p class="text-gray-500">industry@demo.com</p>
+            </button>
+          </div>
+          <p class="text-xs text-gray-400 text-center mt-2">Password: demo123</p>
+        </div> -->
+      </div>
+
+      <!-- Register Form (initially hidden) -->
+      <div id="registerForm" class="space-y-5 fade-in hidden">
+        <!-- User Type Selection for Register -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm">
+          <p class="text-sm font-medium text-gray-700 mb-3">Daftar sebagai</p>
+          <div class="flex gap-2">
+            <button onclick="setRegType('user')" id="regUserBtn" class="flex-1 py-3 px-3 rounded-xl border-2 border-primary bg-surface text-primary font-semibold flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Pengguna
+            </button>
+            <button  id="regAdminBtn" onclick="setRegType('admin')" class="flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              Admin
+            </button>
+            <button onclick="setRegType('industry')" id="regIndustryBtn" class="flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+              </svg>
+              Industri
+            </button>
+          </div>
+        </div>
+
+        <!-- Nama Lengkap -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+          <input type="text" id="regName" placeholder="Masukkan nama lengkap" 
+                 class="w-full p-3 bg-white rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <input type="email" id="regEmail" placeholder="contoh@email.com" 
+                 class="w-full p-3 bg-white rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+        </div>
+
+        <!-- Nomor Telepon -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon</label>
+          <input type="tel" id="regPhone" placeholder="08xxxxxxxxxx" 
+                 class="w-full p-3 bg-white rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Kata Sandi</label>
+          <div class="relative">
+            <input type="password" id="regPassword" placeholder="Minimal 8 karakter" 
+                   class="w-full p-3 bg-white rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+            <button type="button" onclick="togglePassword('regPassword')" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Konfirmasi Password -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Kata Sandi</label>
+          <input type="password" id="regConfirmPassword" placeholder="Masukkan ulang password" 
+                 class="w-full p-3 bg-white rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+        </div>
+
+        <!-- Terms & Conditions -->
+        <div class="flex items-start gap-3">
+          <input type="checkbox" id="terms" class="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
+          <label for="terms" class="text-sm text-gray-600">
+            Saya menyetujui <a href="#" class="text-primary font-semibold">Syarat & Ketentuan</a> dan 
+            <a href="#" class="text-primary font-semibold">Kebijakan Privasi</a> Sirkana
+          </label>
+        </div>
+
+        <!-- Register Button -->
+        <button onclick="handleRegister()" class="w-full gradient-primary text-white py-3 rounded-xl font-semibold btn-press flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+          Daftar Akun
+        </button>
+
+        <p class="text-center text-sm text-gray-500">
+          Sudah punya akun? 
+          <button onclick="switchTab('login')" class="text-primary font-semibold">Masuk di sini</button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-xl shadow-xl z-50 hidden transform transition-all duration-300">
+    <div class="flex items-center gap-3">
+      <svg id="toastIcon" class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <span id="toastMessage">Berhasil!</span>
+    </div>
+  </div>
+
+  <script>
+    let currentUserType = 'user';
+    let currentRegType = 'user';
+
+    // Tab switching
+    function switchTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const tabLogin = document.getElementById('tabLogin');
+      const tabRegister = document.getElementById('tabRegister');
+
+      if (tab === 'login') {
+      localStorage.setItem('showUserDashboard', 'true');
+      localStorage.setItem('showUserNav', 'true');
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+      tabRegister.classList.remove('tab-active', 'text-primary');
+      tabLogin.classList.add('tab-active', 'text-primary');
+      tabRegister.classList.remove('text-gray-500');
+    
+    // Pindah ke index.html
+      // window.location.href = 'index.html';      
+    } else {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        tabRegister.classList.add('tab-active', 'text-primary');
+        tabRegister.classList.remove('text-gray-500');
+        tabLogin.classList.remove('tab-active', 'text-primary');
+        tabLogin.classList.add('text-gray-500');
+      }
+    }
+
+    // Set user type for login
+    function setUserType(type) {
+      currentUserType = type;
+      
+      // Reset all buttons
+      document.getElementById('userTypeBtn').className = 'flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2';
+      document.getElementById('adminTypeBtn').className = 'flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2';
+      document.getElementById('industryTypeBtn').className = 'flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2';
+      
+      // Set active button
+
+        document.getElementById('userTypeBtn').className = 'flex-1 py-3 px-3 rounded-xl border-2 border-primary bg-surface text-primary font-semibold flex items-center justify-center gap-2';
+
+    }
+
+    // Set user type for register
+    function setRegType(type) {
+      currentRegType = type;
+      
+      // Reset all buttons
+      document.getElementById('regUserBtn').className = 'flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2';
+      document.getElementById('regAdminBtn').className = 'flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2';
+      document.getElementById('regIndustryBtn').className = 'flex-1 py-3 px-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold flex items-center justify-center gap-2';
+      
+      // Set active button
+        document.getElementById('regUserBtn').className = 'flex-1 py-3 px-3 rounded-xl border-2 border-primary bg-surface text-primary font-semibold flex items-center justify-center gap-2';
+    }
+
+    // Toggle password visibility
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+      } else {
+        input.type = 'password';
+      }
+    }
+
+    // Fill demo account
+    function fillDemo(type) {
+      let email = '';
+      switch(type) {
+        case 'user':
+          email = 'user@demo.com';
+          break;
+        case 'admin':
+          email = 'admin@demo.com';
+          break;
+        case 'industry':
+          email = 'industry@demo.com';
+          break;
+      }
+      
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = 'demo123';
+      
+      // Set user type
+      setUserType(type);
+      
+      showToast('Akun demo terisi!');
+    }
+
+    // Handle login
+    function handleLogin() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      if (!email || !password) {
+        showToast('Email dan password harus diisi!', 'error');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showToast('Password minimal 6 karakter!', 'error');
+        return;
+      }
+      
+      // Simulasi login sukses
+      showToast(`Login berhasil sebagai ${currentUserType}!`, 'success');
+      
+      // Redirect simulation
+      setTimeout(() => {
+        window.location.href = `index.html?type=successLoginUser`;
+      }, 1500);
+    }
+
+    // Handle register
+    function handleRegister() {
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const phone = document.getElementById('regPhone').value;
+      const password = document.getElementById('regPassword').value;
+      const confirmPass = document.getElementById('regConfirmPassword').value;
+      const terms = document.getElementById('terms').checked;
+      
+      // Validasi
+      if (!name || !email || !phone || !password || !confirmPass) {
+        showToast('Semua field harus diisi!', 'error');
+        return;
+      }
+      
+      if (!email.includes('@')) {
+        showToast('Email tidak valid!', 'error');
+        return;
+      }
+      
+      if (password.length < 8) {
+        showToast('Password minimal 8 karakter!', 'error');
+        return;
+      }
+      
+      if (password !== confirmPass) {
+        showToast('Password tidak cocok!', 'error');
+        return;
+      }
+      
+      if (!terms) {
+        showToast('Anda harus menyetujui syarat & ketentuan!', 'error');
+        return;
+      }
+      
+      // Simulasi registrasi sukses
+      showToast(`Registrasi berhasil! Selamat datang ${name}`, 'success');
+      
+      // Kembali ke login setelah 2 detik
+      setTimeout(() => {
+        switchTab('login');
+        document.getElementById('regName').value = '';
+        document.getElementById('regEmail').value = '';
+        document.getElementById('regPhone').value = '';
+        document.getElementById('regPassword').value = '';
+        document.getElementById('regConfirmPassword').value = '';
+        document.getElementById('terms').checked = false;
+        window.location.href = `index.html?type=successLoginUser`;
+      }, 2000);
+    }
+
+    // Go back
+    function goBack() {
+      showToast('Kembali ke halaman utama');
+      setTimeout(() => {
+        window.location.href = 'index.html?type=loginOptions';
+      }, 500);
+    }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+      
+      toastMessage.textContent = message;
+      
+      if (type === 'error') {
+        toastIcon.classList.remove('text-green-400');
+        toastIcon.classList.add('text-red-400');
+        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+      } else {
+        toastIcon.classList.remove('text-red-400');
+        toastIcon.classList.add('text-green-400');
+        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+      }
+      
+      toast.classList.remove('hidden');
+      
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sirkana - Manajemen Bank Sampah</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#22C55E',
+            'primary-dark': '#16A34A',
+            secondary: '#FACC15',
+            'secondary-dark': '#EAB308',
+            accent: '#065F46',
+            surface: '#F0FDF4',
+            'surface-alt': '#FEFCE8'
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; padding: 0; }
+    .app-container { height: 100%; overflow: auto; }
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .slide-up { animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
+    .pulse-dot { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(34, 197, 94, 0.15); }
+    .btn-press { transition: transform 0.1s ease; }
+    .btn-press:active { transform: scale(0.97); }
+    .gradient-primary { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
+    .gradient-secondary { background: linear-gradient(135deg, #FACC15 0%, #EAB308 100%); }
+    .glass-effect { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+    input:focus, select:focus { outline: none; }
+    .scroll-hidden::-webkit-scrollbar { display: none; }
+    .scroll-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full bg-white font-sans">
+  <div id="app" class="app-container scroll-hidden"><!-- Login Screen -->
+   <div id="loginScreen" class="min-h-full bg-gradient-to-br from-primary via-primary-dark to-accent flex flex-col">
+    <div class="flex-1 flex flex-col items-center justify-center p-6">
+     <div class="mb-8 fade-in">
+      <div class="w-24 h-24 bg-white rounded-3xl shadow-2xl flex items-center justify-center mb-4 mx-auto">
+      <img src="logohijau-removebg-preview.png" alt="">
+      </div>
+      <h1 id="appTitle" class="text-4xl font-bold text-white text-center tracking-tight">Sirkana</h1>
+      <p id="appTagline" class="text-green-100 text-center mt-2 text-lg">Kelola Sampah, Raih Berkah</p>
+     </div>
+     <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 fade-in">
+      <h2 class="text-xl font-bold text-gray-800 mb-6 text-center">Masuk sebagai</h2>
+      <div class="space-y-3"><button onclick="selectUserType('user')" class="w-full p-4 rounded-2xl border-2 border-gray-100 hover:border-primary hover:bg-surface transition-all flex items-center gap-4 btn-press group">
+        <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+         </svg>
+        </div>
+        <div class="text-left flex-1" onclick="loginPengguna()">
+         <p class="font-semibold text-gray-800">Pengguna</p>
+         <p class="text-sm text-gray-500">Setorkan sampah Anda</p>
+        </div>
+        <svg class="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg></button> <button onclick="selectUserType('admin')" class="w-full p-4 rounded-2xl border-2 border-gray-100 hover:border-secondary hover:bg-surface-alt transition-all flex items-center gap-4 btn-press group">
+        <div class="w-12 h-12 gradient-secondary rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+         </svg>
+        </div>
+        <div class="text-left flex-1" onclick="loginBank()">
+         <p class="font-semibold text-gray-800">Admin Bank Sampah</p>
+         <p class="text-sm text-gray-500">Kelola bank sampah</p>
+        </div>
+        <svg class="w-5 h-5 text-gray-400 group-hover:text-secondary transition-colors" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg></button> <button onclick="selectUserType('industry')" class="w-full p-4 rounded-2xl border-2 border-gray-100 hover:border-accent hover:bg-surface transition-all flex items-center gap-4 btn-press group">
+        <div class="w-12 h-12 bg-accent rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+         </svg>
+        </div>
+        <div class="text-left flex-1" onclick="loginIndustri()">
+         <p class="font-semibold text-gray-800">Industri</p>
+         <p class="text-sm text-gray-500">Kelola kebutuhan sampah</p>
+        </div>
+        <svg class="w-5 h-5 text-gray-400 group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg></button>
+      </div>
+     </div>
+    </div>
+    <div class="p-6 text-center">
+     <p class="text-green-100 text-sm">© 2026 Sirkana. Created By AMN and UNESA student.</p>
+    </div>
+   </div><!-- User Dashboard -->
+   <div id="userDashboard" class="min-h-full bg-gray-50 hidden"><!-- Header -->
+    <header class="gradient-primary p-6 pb-24 relative overflow-hidden">
+     <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+     <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+     <div class="relative z-10">
+      <div class="flex items-center justify-between mb-6"><button onclick="logout()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg></button>
+       <h1 class="text-white font-bold text-lg">Sirkana</h1><button class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center relative">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg><span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">2</span> </button>
+      </div>
+      <p class="text-green-100 text-sm">Selamat datang,</p>
+      <h2 class="text-white text-2xl font-bold">Otong Surotong Pararotong</h2>
+     </div>
+    </header><!-- Balance Card -->
+    <div class="px-4 -mt-16 relative z-20">
+     <div class="bg-white rounded-3xl shadow-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+       <div>
+        <p class="text-gray-500 text-sm">Saldo Anda</p>
+        <p id="userBalance" class="text-3xl font-bold text-gray-800">Rp 125.000</p>
+       </div>
+       <div class="w-14 h-14 gradient-secondary rounded-2xl flex items-center justify-center shadow-lg">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+       </div>
+      </div>
+      <div class="flex gap-3"><button onclick="showWithdrawModal()" class="flex-1 gradient-primary text-white py-3 rounded-xl font-semibold btn-press flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg> Cairkan </button> <button onclick="showUserHistory()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold btn-press flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg> Riwayat </button>
+      </div>
+     </div>
+    </div><!-- Search Section -->
+    <div class="px-4 mt-6">
+     <div class="bg-white rounded-2xl p-4 shadow-sm">
+      <div class="flex items-center gap-3">
+       <div class="flex-1 relative">
+        <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg><input type="text" placeholder="Cari bank sampah terdekat..." class="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-xl border border-gray-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+       </div><button class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center shadow-lg btn-press">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg></button>
+      </div>
+     </div>
+    </div><!-- Nearby Waste Banks -->
+    <div class="px-4 mt-6">
+     <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-gray-800 text-lg">Bank Sampah Terdekat</h3><button class="text-primary text-sm font-semibold">Lihat Semua</button>
+     </div>
+     <div class="space-y-3">
+      <div onclick="showDepositModal('Bank Sampah Sejahtera')" class="bg-white rounded-2xl p-4 shadow-sm card-hover cursor-pointer">
+       <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-surface rounded-xl flex items-center justify-center">
+         <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+         </svg>
+        </div>
+        <div class="flex-1">
+         <h4 class="font-semibold text-gray-800">Bank Sampah Sejahtera</h4>
+         <p class="text-sm text-gray-500">Jl. Merdeka No. 45</p>
+         <div class="flex items-center gap-2 mt-1"><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Buka</span> <span class="text-xs text-gray-400">• 1.2 km</span>
+         </div>
+        </div>
+        <div class="text-right">
+         <div class="flex items-center gap-1 text-yellow-500">
+          <svg class="w-4 h-4 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg><span class="text-sm font-semibold">4.8</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div onclick="showDepositModal('Bank Sampah Makmur')" class="bg-white rounded-2xl p-4 shadow-sm card-hover cursor-pointer">
+       <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-surface-alt rounded-xl flex items-center justify-center">
+         <svg class="w-7 h-7 text-secondary-dark" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+         </svg>
+        </div>
+        <div class="flex-1">
+         <h4 class="font-semibold text-gray-800">Bank Sampah Makmur</h4>
+         <p class="text-sm text-gray-500">Jl. Pahlawan No. 12</p>
+         <div class="flex items-center gap-2 mt-1"><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Buka</span> <span class="text-xs text-gray-400">• 2.5 km</span>
+         </div>
+        </div>
+        <div class="text-right">
+         <div class="flex items-center gap-1 text-yellow-500">
+          <svg class="w-4 h-4 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg><span class="text-sm font-semibold">4.6</span>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div onclick="showDepositModal('Bank Sampah Lestari')" class="bg-white rounded-2xl p-4 shadow-sm card-hover cursor-pointer">
+       <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-surface rounded-xl flex items-center justify-center">
+         <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+         </svg>
+        </div>
+        <div class="flex-1">
+         <h4 class="font-semibold text-gray-800">Bank Sampah Lestari</h4>
+         <p class="text-sm text-gray-500">Jl. Sudirman No. 78</p>
+         <div class="flex items-center gap-2 mt-1"><span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Tutup</span> <span class="text-xs text-gray-400">• 3.1 km</span>
+         </div>
+        </div>
+        <div class="text-right">
+         <div class="flex items-center gap-1 text-yellow-500">
+          <svg class="w-4 h-4 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg><span class="text-sm font-semibold">4.9</span>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Waste Price Info -->
+    <div class="px-4 mt-6 mb-24">
+     <h3 class="font-bold text-gray-800 text-lg mb-4">Harga Sampah Terkini</h3>
+     <div class="grid grid-cols-2 gap-3">
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+       <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mb-3">
+        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+       </div>
+       <p class="text-sm text-gray-500">Kertas</p>
+       <p class="font-bold text-gray-800">Rp 2.500/kg</p>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+       <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mb-3">
+        <svg class="w-5 h-5 text-green-600" viewbox="0 0 24 24" fill="currentColor"><path d="M18.5 3H6c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-1.5-4.5L3.5 11l4.5-1.5L9.5 5l1.5 4.5L15.5 11l-4.5 1.5L9.5 17z" />
+        </svg>
+       </div>
+       <p class="text-sm text-gray-500">Plastik</p>
+       <p class="font-bold text-gray-800">Rp 3.000/kg</p>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+       <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mb-3">
+        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+       </div>
+       <p class="text-sm text-gray-500">Aluminium</p>
+       <p class="font-bold text-gray-800">Rp 12.000/kg</p>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+       <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mb-3">
+        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+       </div>
+       <p class="text-sm text-gray-500">Elektronik</p>
+       <p class="font-bold text-gray-800">Rp 8.000/kg</p>
+      </div>
+     </div>
+    </div>
+   </div><!-- Admin Dashboard -->
+   <div id="adminDashboard" class="min-h-full bg-gray-50 hidden"><!-- Header -->
+    <header class="gradient-secondary p-6 pb-24 relative overflow-hidden">
+     <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+     <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+     <div class="relative z-10">
+      <div class="flex items-center justify-between mb-6"><button onclick="logout()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg></button>
+       <h1 class="text-white font-bold text-lg">Admin Panel</h1><button class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg></button>
+      </div>
+      <p class="text-yellow-100 text-sm">Bank Sampah Sejahtera</p>
+      <h2 class="text-white text-2xl font-bold">Halo, Admin!</h2>
+     </div>
+    </header><!-- Stats Cards -->
+    <div class="px-4 -mt-16 relative z-20">
+     <div class="grid grid-cols-2 gap-3">
+      <div class="bg-white rounded-2xl p-4 shadow-xl">
+       <div class="flex items-center justify-between mb-2">
+        <div class="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
+         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+         </svg>
+        </div><span class="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-full">+12%</span>
+       </div>
+       <p class="text-2xl font-bold text-gray-800">850 kg</p>
+       <p class="text-sm text-gray-500">Total Sampah</p>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-xl">
+       <div class="flex items-center justify-between mb-2">
+        <div class="w-10 h-10 gradient-secondary rounded-xl flex items-center justify-center">
+         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg>
+        </div><span class="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-full">+8%</span>
+       </div>
+       <p id="adminBalance" class="text-2xl font-bold text-gray-800">Rp 2.5jt</p>
+       <p class="text-sm text-gray-500">Dana Terkumpul</p>
+      </div>
+     </div>
+    </div><!-- Quick Actions -->
+    <div class="px-4 mt-6">
+     <h3 class="font-bold text-gray-800 mb-4">Menu Cepat</h3>
+     <div class="grid grid-cols-4 gap-3"><button onclick="showAdminWasteInput()" class="bg-white rounded-2xl p-4 shadow-sm flex flex-col items-center gap-2 btn-press">
+       <div class="w-12 h-12 bg-surface rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+       </div><span class="text-xs text-gray-600 text-center">Input Sampah</span> </button> <button onclick="showAdminWasteList()" class="bg-white rounded-2xl p-4 shadow-sm flex flex-col items-center gap-2 btn-press">
+       <div class="w-12 h-12 bg-surface-alt rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-secondary-dark" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+       </div><span class="text-xs text-gray-600 text-center">Daftar Sampah</span> </button> <button onclick="showAdminDisbursement()" class="bg-white rounded-2xl p-4 shadow-sm flex flex-col items-center gap-2 btn-press">
+       <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+       </div onclick="cairkan()"><span class="text-xs text-gray-600 text-center">Pencairan</span> </button> <button onclick="showIndustryList()" class="bg-white rounded-2xl p-4 shadow-sm flex flex-col items-center gap-2 btn-press">
+       <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+        </svg>
+       </div><span class="text-xs text-gray-600 text-center">Industri</span> </button>
+     </div>
+    </div><!-- Industry Partners -->
+    <div class="px-4 mt-6">
+     <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-gray-800 text-lg">Mitra Industri</h3><button class="text-primary text-sm font-semibold">Lihat Semua</button>
+     </div>
+     <div class="space-y-3" id="adminIndustryList">
+      <div class="bg-white rounded-2xl p-4 shadow-sm card-hover">
+       <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+         <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+         </svg>
+        </div>
+        <div class="flex-1">
+         <h4 class="font-semibold text-gray-800">PT. Kertas Nusantara</h4>
+         <p class="text-sm text-gray-500">Butuh: Kertas, Kardus</p>
+         <div class="flex items-center gap-2 mt-1"><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">500 kg/bulan</span>
+         </div>
+        </div><button onclick="selectIndustry('PT. Kertas Nusantara')" class="px-4 py-2 gradient-primary text-white text-sm rounded-xl btn-press">Pilih</button>
+       </div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm card-hover">
+       <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
+         <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+         </svg>
+        </div>
+        <div class="flex-1">
+         <h4 class="font-semibold text-gray-800">CV. Plastik Daur Ulang</h4>
+         <p class="text-sm text-gray-500">Butuh: Plastik PET, HDPE</p>
+         <div class="flex items-center gap-2 mt-1"><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">300 kg/bulan</span>
+         </div>
+        </div><button onclick="selectIndustry('CV. Plastik Daur Ulang')" class="px-4 py-2 gradient-primary text-white text-sm rounded-xl btn-press">Pilih</button>
+       </div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm card-hover">
+       <div class="flex items-center gap-4">
+        <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center">
+         <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+         </svg>
+        </div>
+        <div class="flex-1">
+         <h4 class="font-semibold text-gray-800">PT. Alumindo Metal</h4>
+         <p class="text-sm text-gray-500">Butuh: Aluminium, Kaleng</p>
+         <div class="flex items-center gap-2 mt-1"><span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">200 kg/bulan</span>
+         </div>
+        </div><button onclick="selectIndustry('PT. Alumindo Metal')" class="px-4 py-2 gradient-primary text-white text-sm rounded-xl btn-press">Pilih</button>
+       </div>
+      </div>
+     </div>
+    </div><!-- Recent Transactions -->
+    <div class="px-4 mt-6 mb-24">
+     <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-gray-800 text-lg">Setoran Terbaru</h3><button class="text-primary text-sm font-semibold">Lihat Semua</button>
+     </div>
+     <div class="bg-white rounded-2xl shadow-sm overflow-hidden" id="recentDeposits">
+      <div class="p-4 border-b border-gray-50">
+       <div class="flex items-center gap-4">
+        <div class="w-10 h-10 bg-surface rounded-full flex items-center justify-center"><span class="text-lg">👤</span>
+        </div>
+        <div class="flex-1">
+         <p class="font-semibold text-gray-800">Ahmad</p>
+         <p class="text-sm text-gray-500">Plastik • 5.2 kg</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-primary">+Rp 15.600</p>
+         <p class="text-xs text-gray-400">Hari ini</p>
+        </div>
+       </div>
+      </div>
+      <div class="p-4 border-b border-gray-50">
+       <div class="flex items-center gap-4">
+        <div class="w-10 h-10 bg-surface-alt rounded-full flex items-center justify-center"><span class="text-lg">👤</span>
+        </div>
+        <div class="flex-1">
+         <p class="font-semibold text-gray-800">Siti</p>
+         <p class="text-sm text-gray-500">Kertas • 3.8 kg</p>
+        </div>
+        <div class="text-right">
+         <p class="font-semibold text-primary">+Rp 9.500</p>
+         <p class="text-xs text-gray-400">Kemarin</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Industry Dashboard -->
+   <div id="industryDashboard" class="min-h-full bg-gray-50 hidden"><!-- Header -->
+    <header class="bg-accent p-6 pb-24 relative overflow-hidden">
+     <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+     <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -ml-16 -mb-16"></div>
+     <div class="relative z-10">
+      <div class="flex items-center justify-between mb-6"><button onclick="logout()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg></button>
+       <h1 class="text-white font-bold text-lg">Portal Industri</h1><button class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg></button>
+      </div>
+      <p class="text-green-200 text-sm">PT. Kertas Nusantara</p>
+      <h2 class="text-white text-2xl font-bold">Dashboard Industri</h2>
+     </div>
+    </header><!-- Stats -->
+    <div class="px-4 -mt-16 relative z-20">
+     <div class="bg-white rounded-3xl shadow-xl p-6">
+      <div class="grid grid-cols-3 gap-4 text-center">
+       <div>
+        <p class="text-2xl font-bold text-gray-800">12</p>
+        <p class="text-xs text-gray-500">Bank Sampah</p>
+       </div>
+       <div>
+        <p class="text-2xl font-bold text-primary">850 kg</p>
+        <p class="text-xs text-gray-500">Total Diterima</p>
+       </div>
+       <div>
+        <p class="text-2xl font-bold text-secondary-dark">Rp 2.5jt</p>
+        <p class="text-xs text-gray-500">Total Bayar</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Waste Needs Management -->
+    <div class="px-4 mt-6">
+     <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-gray-800 text-lg">Kebutuhan Sampah</h3><button onclick="showAddNeedModal()" class="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg btn-press">
+       <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+       </svg></button>
+     </div>
+     <div class="space-y-3" id="industryNeeds">
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+       <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+         </svg>
+        </div>
+        <div class="flex-1">
+         <div class="flex items-center justify-between">
+          <h4 class="font-semibold text-gray-800">Kertas HVS</h4><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Aktif</span>
+         </div>
+         <p class="text-sm text-gray-500">Target: 500 kg/bulan</p>
+         <div class="mt-2 bg-gray-100 rounded-full h-2">
+          <div class="bg-primary h-2 rounded-full" style="width: 65%"></div>
+         </div>
+         <p class="text-xs text-gray-500 mt-1">325 kg terkumpul</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+       <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+         <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+         </svg>
+        </div>
+        <div class="flex-1">
+         <div class="flex items-center justify-between">
+          <h4 class="font-semibold text-gray-800">Kardus</h4><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Aktif</span>
+         </div>
+         <p class="text-sm text-gray-500">Target: 300 kg/bulan</p>
+         <div class="mt-2 bg-gray-100 rounded-full h-2">
+          <div class="bg-secondary h-2 rounded-full" style="width: 40%"></div>
+         </div>
+         <p class="text-xs text-gray-500 mt-1">120 kg terkumpul</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- Incoming Supplies -->
+    <div class="px-4 mt-6 mb-24">
+     <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-gray-800 text-lg">Pasokan Masuk</h3><button class="text-primary text-sm font-semibold">Lihat Semua</button>
+     </div>
+     <div class="space-y-3">
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+       <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-surface rounded-xl flex items-center justify-center">
+         <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+         </svg>
+        </div>
+        <div class="flex-1" onclick="profilBank()">
+         <h4 class="font-semibold text-gray-800">Bank Sampah Sejahtera</h4>
+         <p class="text-sm text-gray-500">Kertas HVS • 50 kg</p>
+        </div>
+        <div class="text-right"><span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">Pending</span>
+         <p class="text-xs text-gray-400 mt-1">2 jam lalu</p>
+        </div>
+       </div>
+       <div class="flex gap-2 mt-4"><button class="flex-1 py-2 gradient-primary text-white rounded-xl text-sm font-semibold btn-press">Terima</button> <button class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold btn-press">Tolak</button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Modals --> <!-- Deposit Modal -->
+   <div id="depositModal" class="fixed inset-0 bg-black/50 z-50 hidden items-end justify-center">
+    <div class="bg-white rounded-t-3xl w-full max-w-lg p-6 slide-up">
+     <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
+     <h3 class="text-xl font-bold text-gray-800 mb-4">Setor Sampah</h3>
+     <p id="depositBankName" class="text-gray-600 mb-4">Bank Sampah Sejahtera</p>
+     <form id="depositForm" onsubmit="submitDeposit(event)">
+      <div class="space-y-4">
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Jenis Sampah</label> <select id="depositWasteType" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20"> <option value="kertas">📄 Kertas</option> <option value="plastik">♻️ Plastik</option> <option value="aluminium">🥫 Aluminium</option> <option value="elektronik">💻 Elektronik</option> </select>
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Perkiraan Berat (kg)</label> <input type="number" id="depositWeight" step="0.1" min="0.1" required placeholder="Contoh: 5.5" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+       </div>
+       <div class="bg-surface rounded-xl p-4">
+        <div class="flex items-center justify-between"><span class="text-gray-600">Estimasi Pendapatan:</span> <span id="estimatedEarning" class="font-bold text-primary text-lg">Rp 0</span>
+        </div>
+       </div>
+      </div>
+      <div class="flex gap-3 mt-6"><button type="button" onclick="closeModal('depositModal')" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold btn-press">Batal</button> <button type="submit" class="flex-1 py-3 gradient-primary text-white rounded-xl font-semibold btn-press">Setor</button>
+      </div>
+     </form>
+    </div>
+   </div><!-- Withdraw Modal -->
+   <div id="withdrawModal" class="fixed inset-0 bg-black/50 z-50 hidden items-end justify-center">
+    <div class="bg-white rounded-t-3xl w-full max-w-lg p-6 slide-up">
+     <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
+     <h3 class="text-xl font-bold text-gray-800 mb-2">Cairkan Dana</h3>
+     <p class="text-gray-500 text-sm mb-4">Pencairan dilakukan setiap tanggal 1-2 setiap bulan</p>
+     <div class="bg-surface-alt rounded-xl p-4 mb-4">
+      <div class="flex items-center gap-3">
+       <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg>
+       <p class="text-sm text-gray-600">Saldo tersedia: <span class="font-bold text-gray-800">Rp 125.000</span></p>
+      </div>
+     </div>
+     <form id="withdrawForm" onsubmit="submitWithdraw(event)">
+      <div class="space-y-4">
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Pencairan</label> <input type="number" id="withdrawAmount" min="10000" step="1000" required placeholder="Min. Rp 10.000" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Nama Bank</label> <select id="withdrawBank" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20"> <option value="bca">BCA</option> <option value="bni">BNI</option> <option value="bri">BRI</option> <option value="mandiri">Mandiri</option> <option value="dana">DANA</option> <option value="gopay">GoPay</option> <option value="ovo">OVO</option> </select>
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Nomor Rekening</label> <input type="text" id="withdrawAccount" required placeholder="Masukkan nomor rekening" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+       </div>
+      </div>
+      <div class="flex gap-3 mt-6"><button type="button" onclick="closeModal('withdrawModal')" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold btn-press">Batal</button> <button type="submit" class="flex-1 py-3 gradient-primary text-white rounded-xl font-semibold btn-press">Ajukan</button>
+      </div>
+     </form>
+    </div>
+   </div><!-- Admin Waste Input Modal -->
+   <div id="adminWasteModal" class="fixed inset-0 bg-black/50 z-50 hidden items-end justify-center">
+    <div class="bg-white rounded-t-3xl w-full max-w-lg p-6 slide-up">
+     <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
+     <h3 class="text-xl font-bold text-gray-800 mb-4">Input Setoran Sampah</h3>
+     <form id="adminWasteForm" onsubmit="submitAdminWaste(event)">
+      <div class="space-y-4">
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Nama Pengguna</label> <input type="text" id="adminUserName" required placeholder="Nama penyetor" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Jenis Sampah</label> <select id="adminWasteType" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20"> <option value="kertas">📄 Kertas - Rp 2.500/kg</option> <option value="plastik">♻️ Plastik - Rp 3.000/kg</option> <option value="aluminium">🥫 Aluminium - Rp 12.000/kg</option> <option value="elektronik">💻 Elektronik - Rp 8.000/kg</option> </select>
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Berat (kg)</label> <input type="number" id="adminWasteWeight" step="0.1" min="0.1" required placeholder="Berat dalam kg" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+       </div>
+       <div class="bg-surface rounded-xl p-4">
+        <div class="flex items-center justify-between"><span class="text-gray-600">Total Bayar:</span> <span id="adminTotalPay" class="font-bold text-primary text-lg">Rp 0</span>
+        </div>
+       </div>
+      </div>
+      <div class="flex gap-3 mt-6"><button type="button" onclick="closeModal('adminWasteModal')" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold btn-press">Batal</button> <button type="submit" class="flex-1 py-3 gradient-primary text-white rounded-xl font-semibold btn-press">Simpan</button>
+      </div>
+     </form>
+    </div>
+   </div><!-- Add Need Modal -->
+   <div id="addNeedModal" class="fixed inset-0 bg-black/50 z-50 hidden items-end justify-center">
+    <div class="bg-white rounded-t-3xl w-full max-w-lg p-6 slide-up">
+     <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
+     <h3 class="text-xl font-bold text-gray-800 mb-4">Tambah Kebutuhan Sampah</h3>
+     <form id="addNeedForm" onsubmit="submitAddNeed(event)">
+      <div class="space-y-4">
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Jenis Sampah</label> <select id="needWasteType" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20"> <option value="kertas">📄 Kertas</option> <option value="plastik">♻️ Plastik</option> <option value="aluminium">🥫 Aluminium</option> <option value="elektronik">💻 Elektronik</option> </select>
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Target per Bulan (kg)</label> <input type="number" id="needTarget" min="1" required placeholder="Target dalam kg" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Harga Beli per kg</label> <input type="number" id="needPrice" min="100" step="100" required placeholder="Harga dalam Rupiah" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20">
+       </div>
+      </div>
+      <div class="flex gap-3 mt-6"><button type="button" onclick="closeModal('addNeedModal')" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold btn-press">Batal</button> <button type="submit" class="flex-1 py-3 gradient-primary text-white rounded-xl font-semibold btn-press">Tambah</button>
+      </div>
+     </form>
+    </div>
+   </div><!-- Toast Notification -->
+   <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-xl shadow-xl z-50 hidden transform transition-all duration-300">
+    <div class="flex items-center gap-3">
+     <svg id="toastIcon" class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+     </svg><span id="toastMessage">Berhasil!</span>
+    </div>
+   </div><!-- Bottom Navigation - User -->
+   <nav id="userNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-2 hidden">
+    <div class="flex items-center justify-around max-w-lg mx-auto"><button class="flex flex-col items-center gap-1 p-2 text-primary">
+      <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+      </svg><span class="text-xs font-medium">Beranda</span> </button> <button onclick="showUserHistory()" class="flex flex-col items-center gap-1 p-2 text-gray-400">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg><span class="text-xs font-medium">Riwayat</span> </button> <button class="flex flex-col items-center gap-1 p-2 text-gray-400">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg><span class="text-xs font-medium">Profil</span> </button>
+    </div>
+   </nav><!-- Bottom Navigation - Admin -->
+   <nav id="adminNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-2 hidden">
+    <div class="flex items-center justify-around max-w-lg mx-auto"><button class="flex flex-col items-center gap-1 p-2 text-secondary-dark">
+      <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+      </svg><span class="text-xs font-medium">Beranda</span> </button> <button onclick="showAdminWasteList()" class="flex flex-col items-center gap-1 p-2 text-gray-400">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg><span class="text-xs font-medium">Data</span> </button> <button onclick="showIndustryList()" class="flex flex-col items-center gap-1 p-2 text-gray-400">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+      </svg><span class="text-xs font-medium">Industri</span> </button> <button class="flex flex-col items-center gap-1 p-2 text-gray-400">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg><span class="text-xs font-medium">Pengaturan</span> </button>
+    </div>
+   </nav><!-- Bottom Navigation - Industry pencairan -->
+   <nav id="industryNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-2 hidden">
+    <div class="flex items-center justify-around max-w-lg mx-auto"><button class="flex flex-col items-center gap-1 p-2 text-accent">
+      <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+      </svg><span class="text-xs font-medium">Beranda</span> </button> <button class="flex flex-col items-center gap-1 p-2 text-gray-400">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg><span class="text-xs font-medium">Kebutuhan</span> </button> <button class="flex flex-col items-center gap-1 p-2 text-gray-400">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg><span class="text-xs font-medium">Pembayaran</span> </button> <button class="flex flex-col items-center gap-1 p-2 text-gray-400">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg><span class="text-xs font-medium">Profil</span> </button>
+    </div>
+   </nav>
+  </div>
+  <script>
+
+    // App State
+    let currentUser = null;
+    let appData = [];
+    let userBalance = 125000;
+    let adminBalance = 2500000;
+
+    // Waste Prices
+    const wastePrices = {
+      kertas: 2500,
+      plastik: 3000,
+      aluminium: 12000,
+      elektronik: 8000
+    };
+
+    // Default Config
+    const defaultConfig = {
+      app_title: 'Sirkana',
+      tagline: 'Kelola Sampah, Raih Berkah',
+      primary_color: '#22C55E',
+      secondary_color: '#FACC15',
+      text_color: '#1F2937',
+      background_color: '#FFFFFF',
+      surface_color: '#F0FDF4'
+    };
+    function cairkan(){
+      window.location.href='pencairan.html';
+    }
+    function loginPengguna(){
+      window.location.href = 'login.html';
+    }
+    function loginBank(){
+      window.location.href = 'loginBank.html';
+    }
+    function loginIndustri(){
+      window.location.href = 'loginIndustri.html';
+    }
+    // Element SDK Initialization user
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          const title = document.getElementById('appTitle');
+          const tagline = document.getElementById('appTagline');
+          if (title) title.textContent = config.app_title || defaultConfig.app_title;
+          if (tagline) tagline.textContent = config.tagline || defaultConfig.tagline;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.primary_color || defaultConfig.primary_color,
+              set: (v) => { config.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); }
+            },
+            {
+              get: () => config.secondary_color || defaultConfig.secondary_color,
+              set: (v) => { config.secondary_color = v; window.elementSdk.setConfig({ secondary_color: v }); }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+            },
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
+            },
+            {
+              get: () => config.surface_color || defaultConfig.surface_color,
+              set: (v) => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['app_title', config.app_title || defaultConfig.app_title],
+          ['tagline', config.tagline || defaultConfig.tagline]
+        ])
+      });
+    }
+
+    // Data SDK Initialization
+    const dataHandler = {
+      onDataChanged(data) {
+        appData = data;
+        updateUI();
+      }
+    };
+
+    async function initDataSDK() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          console.error('Failed to initialize Data SDK');
+        }
+      }
+    }
+
+    initDataSDK();
+    // User Type Selection
+    function selectUserType(type) {
+      currentUser = type;
+      document.getElementById('loginScreen').classList.add('hidden');
+      
+      if (type === 'user') {
+        document.getElementById('userDashboard').classList.remove('hidden');
+        document.getElementById('userNav').classList.remove('hidden');
+      } else if (type === 'admin') {
+        document.getElementById('adminDashboard').classList.remove('hidden');
+        document.getElementById('adminNav').classList.remove('hidden');
+      } else if (type === 'industry') {
+        document.getElementById('industryDashboard').classList.remove('hidden');
+        document.getElementById('industryNav').classList.remove('hidden');
+      }
+    }
+    function profilBank(){
+      document.getElementById('industryDashboard').classList.add('hidden');
+      document.getElementById('industryNav').classList.add('hidden');
+      selectUserType('admin');
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const type = urlParams.get('type');
+    if(type==='successLoginUser'){
+      selectUserType('user');
+    } else if(type==='successLoginAdmin'){
+      selectUserType('admin');
+    } else if(type==='successLoginIndustry'){
+      selectUserType('industry');
+    } else {
+      document.getElementById('userDashboard').classList.add('hidden');
+      document.getElementById('userNav').classList.add('hidden');
+      document.getElementById('adminDashboard').classList.add('hidden');
+      document.getElementById('adminNav').classList.add('hidden');
+      document.getElementById('industryDashboard').classList.add('hidden');
+      document.getElementById('industryNav').classList.add('hidden');
+      
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+    // Baca parameter dari URL window
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    const showDashboard = urlParams.get('showDashboard');
+    
+    if (tab === 'login' && showDashboard === 'true') {
+        // Jalankan manipulasi DOM di sini
+        document.getElementById('userDashboard').classList.remove('hidden');
+        document.getElementById('userNav').classList.remove('hidden');
+        
+        let loginForm = document.getElementById('loginForm');
+        let registerForm = document.getElementById('registerForm');
+        let tabLogin = document.getElementById('tabLogin');
+        let tabRegister = document.getElementById('tabRegister');
+        
+        if (loginForm && registerForm && tabLogin && tabRegister) {
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            tabLogin.classList.add('tab-active', 'text-primary');
+            tabLogin.classList.remove('text-gray-500');
+            tabRegister.classList.remove('tab-active', 'text-primary');
+            tabRegister.classList.add('text-gray-500');
+        }
+    }
+});
+    // document.getElementById('userDashboard').classList.remove('hidden');
+        // document.getElementById('userNav').classList.remove('hidden');
+
+        // Di index.html, dalam tag <script> (bisa di bagian bawah sebelum </body>)
+document.addEventListener('DOMContentLoaded', function() {
+    // Cek apakah user datang dari login dengan status tertentu
+    if (localStorage.getItem('showUserDashboard') === 'true') {
+        // Jalankan manipulasi DOM setelah halaman selesai dimuat
+        document.getElementById('userDashboard').classList.remove('hidden');
+        document.getElementById('userNav').classList.remove('hidden');
+        
+        // Hapus data dari localStorage agar tidak terus muncul
+        localStorage.removeItem('showUserDashboard');
+        localStorage.removeItem('showUserNav');
+    }
+});
+    // Logout
+    function logout() {
+      currentUser = null;
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('userDashboard').classList.add('hidden');
+      document.getElementById('adminDashboard').classList.add('hidden');
+      document.getElementById('industryDashboard').classList.add('hidden');
+      document.getElementById('userNav').classList.add('hidden');
+      document.getElementById('adminNav').classList.add('hidden');
+      document.getElementById('industryNav').classList.add('hidden');
+    }
+
+    // Modal Functions
+    function showModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Deposit Functions
+    function showDepositModal(bankName) {
+      document.getElementById('depositBankName').textContent = bankName;
+      showModal('depositModal');
+    }
+
+    document.getElementById('depositWeight').addEventListener('input', function() {
+      const weight = parseFloat(this.value) || 0;
+      const type = document.getElementById('depositWasteType').value;
+      const price = wastePrices[type];
+      const total = Math.round(weight * price);
+      document.getElementById('estimatedEarning').textContent = 'Rp ' + total.toLocaleString('id-ID');
+    });
+
+    document.getElementById('depositWasteType').addEventListener('change', function() {
+      const weight = parseFloat(document.getElementById('depositWeight').value) || 0;
+      const price = wastePrices[this.value];
+      const total = Math.round(weight * price);
+      document.getElementById('estimatedEarning').textContent = 'Rp ' + total.toLocaleString('id-ID');
+    });
+
+    async function submitDeposit(e) {
+      e.preventDefault();
+      const weight = parseFloat(document.getElementById('depositWeight').value);
+      const type = document.getElementById('depositWasteType').value;
+      const amount = Math.round(weight * wastePrices[type]);
+      
+      if (window.dataSdk) {
+        if (appData.length >= 999) {
+          showToast('Batas data tercapai', 'error');
+          return;
+        }
+        
+        const result = await window.dataSdk.create({
+          id: Date.now().toString(),
+          type: 'deposit',
+          user_type: 'user',
+          name: 'Ahmad Pengguna',
+          amount: amount,
+          weight: weight,
+          status: 'pending',
+          waste_type: type,
+          bank_name: '',
+          account_number: '',
+          created_at: new Date().toISOString(),
+          industry_name: '',
+          needs: ''
+        });
+        
+        if (result.isOk) {
+          userBalance += amount;
+          document.getElementById('userBalance').textContent = 'Rp ' + userBalance.toLocaleString('id-ID');
+          showToast('Setoran berhasil!');
+        } else {
+          showToast('Gagal menyetor', 'error');
+        }
+      }
+      
+      closeModal('depositModal');
+      document.getElementById('depositForm').reset();
+      document.getElementById('estimatedEarning').textContent = 'Rp 0';
+    }
+
+    // Withdraw Functions
+    function showWithdrawModal() {
+      showModal('withdrawModal');
+    }
+
+    async function submitWithdraw(e) {
+      e.preventDefault();
+      const amount = parseInt(document.getElementById('withdrawAmount').value);
+      const bank = document.getElementById('withdrawBank').value;
+      const account = document.getElementById('withdrawAccount').value;
+      
+      if (amount > userBalance) {
+        showToast('Saldo tidak mencukupi', 'error');
+        return;
+      }
+      
+      const today = new Date().getDate();
+      if (today !== 1 && today !== 2) {
+        showToast('Pencairan hanya tanggal 1-2', 'error');
+        return;
+      }
+      
+      if (window.dataSdk) {
+        if (appData.length >= 999) {
+          showToast('Batas data tercapai', 'error');
+          return;
+        }
+        
+        const result = await window.dataSdk.create({
+          id: Date.now().toString(),
+          type: 'withdraw',
+          user_type: 'user',
+          name: 'Ahmad Pengguna',
+          amount: amount,
+          weight: 0,
+          status: 'pending',
+          waste_type: '',
+          bank_name: bank.toUpperCase(),
+          account_number: account,
+          created_at: new Date().toISOString(),
+          industry_name: '',
+          needs: ''
+        });
+        
+        if (result.isOk) {
+          userBalance -= amount;
+          document.getElementById('userBalance').textContent = 'Rp ' + userBalance.toLocaleString('id-ID');
+          showToast('Pengajuan pencairan berhasil!');
+        } else {
+          showToast('Gagal mengajukan', 'error');
+        }
+      }
+      
+      closeModal('withdrawModal');
+      document.getElementById('withdrawForm').reset();
+    }
+
+    // Admin Functions
+    function showAdminWasteInput() {
+      showModal('adminWasteModal');
+    }
+
+    document.getElementById('adminWasteWeight').addEventListener('input', function() {
+      const weight = parseFloat(this.value) || 0;
+      const type = document.getElementById('adminWasteType').value;
+      const price = wastePrices[type];
+      const total = Math.round(weight * price);
+      document.getElementById('adminTotalPay').textContent = 'Rp ' + total.toLocaleString('id-ID');
+    });
+
+    document.getElementById('adminWasteType').addEventListener('change', function() {
+      const weight = parseFloat(document.getElementById('adminWasteWeight').value) || 0;
+      const price = wastePrices[this.value];
+      const total = Math.round(weight * price);
+      document.getElementById('adminTotalPay').textContent = 'Rp ' + total.toLocaleString('id-ID');
+    });
+
+    async function submitAdminWaste(e) {
+      e.preventDefault();
+      const name = document.getElementById('adminUserName').value;
+      const weight = parseFloat(document.getElementById('adminWasteWeight').value);
+      const type = document.getElementById('adminWasteType').value;
+      const amount = Math.round(weight * wastePrices[type]);
+      
+      if (window.dataSdk) {
+        if (appData.length >= 999) {
+          showToast('Batas data tercapai', 'error');
+          return;
+        }
+        
+        const result = await window.dataSdk.create({
+          id: Date.now().toString(),
+          type: 'admin_input',
+          user_type: 'admin',
+          name: name,
+          amount: amount,
+          weight: weight,
+          status: 'completed',
+          waste_type: type,
+          bank_name: '',
+          account_number: '',
+          created_at: new Date().toISOString(),
+          industry_name: '',
+          needs: ''
+        });
+        
+        if (result.isOk) {
+          showToast('Data sampah tersimpan!');
+        } else {
+          showToast('Gagal menyimpan', 'error');
+        }
+      }
+      
+      closeModal('adminWasteModal');
+      document.getElementById('adminWasteForm').reset();
+      document.getElementById('adminTotalPay').textContent = 'Rp 0';
+    }
+
+    function showAdminWasteList() {
+      showToast('Fitur dalam pengembangan');
+    }
+
+    function showAdminDisbursement() {
+      showToast('Pencairan tanggal 1-2 setiap bulan');
+    }
+
+    function showIndustryList() {
+      showToast('Daftar industri tersedia');
+    }
+
+    function selectIndustry(name) {
+      showToast('Industri ' + name + ' dipilih');
+    }
+
+    // Industry Functions
+    function showAddNeedModal() {
+      showModal('addNeedModal');
+    }
+
+    async function submitAddNeed(e) {
+      e.preventDefault();
+      const type = document.getElementById('needWasteType').value;
+      const target = parseInt(document.getElementById('needTarget').value);
+      const price = parseInt(document.getElementById('needPrice').value);
+      
+      if (window.dataSdk) {
+        if (appData.length >= 999) {
+          showToast('Batas data tercapai', 'error');
+          return;
+        }
+        
+        const result = await window.dataSdk.create({
+          id: Date.now().toString(),
+          type: 'industry_need',
+          user_type: 'industry',
+          name: 'PT. Kertas Nusantara',
+          amount: price,
+          weight: target,
+          status: 'active',
+          waste_type: type,
+          bank_name: '',
+          account_number: '',
+          created_at: new Date().toISOString(),
+          industry_name: 'PT. Kertas Nusantara',
+          needs: type + ' - ' + target + ' kg/bulan'
+        });
+        
+        if (result.isOk) {
+          showToast('Kebutuhan ditambahkan!');
+        } else {
+          showToast('Gagal menambah', 'error');
+        }
+      }
+      
+      closeModal('addNeedModal');
+      document.getElementById('addNeedForm').reset();
+    }
+
+    // User History
+    function showUserHistory() {
+      showToast('Riwayat transaksi');
+    }
+
+    // Toast Notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+      
+      toastMessage.textContent = message;
+      
+      if (type === 'error') {
+        toastIcon.classList.remove('text-green-400');
+        toastIcon.classList.add('text-red-400');
+        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+      } else {
+        toastIcon.classList.remove('text-red-400');
+        toastIcon.classList.add('text-green-400');
+        toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+      }
+      
+      toast.classList.remove('hidden');
+      
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+
+    // Update UI
+    function updateUI() {
+      // Update based on app data changes
+    }
+
+    // Close modals on backdrop click
+    document.querySelectorAll('[id$="Modal"]').forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.add('hidden');
+          this.classList.remove('flex');
+        }
+      });
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d1b789f647e658e',t:'MTc3MTczMTcyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
