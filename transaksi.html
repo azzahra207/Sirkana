@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sirkana - Konfirmasi Transaksi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f0f7ee; }
+    .gradient-primary { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
+    .gradient-secondary { background: linear-gradient(135deg, #FACC15 0%, #EAB308 100%); }
+    .btn-press:active { transform: scale(0.97); transition: transform 0.1s; }
+    .slide-up { animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden slide-up">
+    <!-- Header dengan warna hijau -->
+    <div class="gradient-primary px-6 py-8 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-12 -mt-12"></div>
+      <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-10 -mb-10"></div>
+      
+      <div class="relative z-10">
+        <a href="index.html?type=successLoginIndustry" class="inline-flex items-center text-white mb-4">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Kembali
+        </a>
+        <h1 class="text-2xl font-bold text-white">Konfirmasi Transaksi</h1>
+        <p class="text-green-100 text-sm mt-1">Review detail sebelum menyetujui</p>
+      </div>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="p-6 space-y-6" id="transactionDetail">
+      <!-- Data akan diisi oleh JavaScript -->
+      <div class="text-center text-gray-500 py-8">
+        <svg class="w-12 h-12 mx-auto mb-3 text-gray-300 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <p>Memuat data transaksi...</p>
+      </div>
+    </div>
+
+    <!-- Tombol Aksi -->
+    <div class="px-6 pb-6 space-y-3">
+      <button onclick="prosesTransaksi()" class="w-full gradient-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 btn-press flex items-center justify-center gap-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        Setujui Transaksi
+      </button>
+      <button onclick="batalTransaksi()" class="w-full bg-gray-100 text-gray-700 py-4 rounded-2xl font-semibold hover:bg-gray-200 transition-colors btn-press">
+        Batalkan
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Ambil parameter dari URL
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Data transaksi (default untuk testing)
+    const transaksiData = {
+      bank: urlParams.get('bank') || 'Bank Sampah Sejahtera',
+      jenis: urlParams.get('jenis') || 'Kertas HVS',
+      berat: parseFloat(urlParams.get('berat')) || 50,
+      harga: parseInt(urlParams.get('harga')) || 2500,
+      waktu: urlParams.get('waktu') || '2 jam lalu'
+    };
+    
+    // Hitung total
+    transaksiData.total = transaksiData.berat * transaksiData.harga;
+
+    // Fungsi format rupiah
+    function formatRupiah(angka) {
+      return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    // Tampilkan detail transaksi
+    function renderDetail() {
+      const container = document.getElementById('transactionDetail');
+      
+      container.innerHTML = `
+        <!-- Status Card -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 flex items-center gap-3">
+          <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-yellow-700">Status Transaksi</p>
+            <p class="font-semibold text-yellow-800">Menunggu persetujuan Anda</p>
+          </div>
+        </div>
+
+        <!-- Detail Supplier -->
+        <div class="bg-gray-50 rounded-2xl p-5">
+          <h3 class="text-sm font-medium text-gray-500 mb-3">DARI BANK SAMPAH</h3>
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
+              <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-gray-800 text-lg">${transaksiData.bank}</h4>
+              <p class="text-sm text-gray-500">Terdaftar • Aktif</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail Sampah -->
+        <div class="bg-gray-50 rounded-2xl p-5">
+          <h3 class="text-sm font-medium text-gray-500 mb-3">DETAIL SAMPAH</h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+              <span class="text-gray-600">Jenis Sampah</span>
+              <span class="font-semibold text-gray-800">${transaksiData.jenis}</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+              <span class="text-gray-600">Berat</span>
+              <span class="font-semibold text-gray-800">${transaksiData.berat} kg</span>
+            </div>
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+              <span class="text-gray-600">Harga per kg</span>
+              <span class="font-semibold text-gray-800">${formatRupiah(transaksiData.harga)}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Waktu Penawaran</span>
+              <span class="text-sm text-gray-500">${transaksiData.waktu}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Pembayaran -->
+        <div class="bg-green-50 rounded-2xl p-5 border-2 border-green-200">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-600">Total yang harus dibayar</span>
+            <span class="text-xs bg-green-200 text-green-700 px-3 py-1 rounded-full">Sudah termasuk pajak</span>
+          </div>
+          <div class="text-3xl font-bold text-green-700 mb-2">${formatRupiah(transaksiData.total)}</div>
+          <p class="text-xs text-gray-500 flex items-center gap-1">
+            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Dana akan ditransfer ke rekening bank sampah setelah verifikasi
+          </p>
+        </div>
+
+        <!-- Informasi Tambahan -->
+        <div class="bg-blue-50 rounded-2xl p-4">
+          <div class="flex gap-3">
+            <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <div>
+              <p class="text-sm font-semibold text-blue-700">Ketentuan Transaksi</p>
+              <p class="text-xs text-blue-600 mt-1">• Sampah akan diverifikasi kualitasnya saat tiba</br>• Pembayaran dilakukan setelah verifikasi selesai</br>• Anda dapat membatalkan transaksi sebelum verifikasi</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Proses transaksi
+    function prosesTransaksi() {
+      // Simpan ke localStorage untuk riwayat
+      const history = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
+      
+      const newTransaction = {
+        id: Date.now(),
+        ...transaksiData,
+        status: 'disetujui',
+        tanggal: new Date().toLocaleString('id-ID'),
+        waktuProses: 'Sedang diproses'
+      };
+      
+      history.push(newTransaction);
+      localStorage.setItem('transactionHistory', JSON.stringify(history));
+      
+      // Tampilkan notifikasi sukses
+      alert('✅ Transaksi berhasil disetujui! Dana akan segera diproses.');
+      
+      // Redirect kembali ke halaman industri
+      window.location.href = 'index.html?type=successLoginIndustry&transaction=success';
+    }
+
+    // Batal transaksi
+    function batalTransaksi() {
+      if (confirm('Batalkan transaksi ini?')) {
+        window.location.href = 'index.html?type=successLoginIndustry';
+      }
+    }
+
+    // Render saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', renderDetail);
+
+    // Untuk testing, bisa juga akses langsung dengan parameter:
+    // transaksi.html?bank=Bank%20Sampah%20Makmur&jenis=Plastik&berat=85&harga=3000&waktu=5%20jam%20lalu
+  </script>
+</body>
+</html>
